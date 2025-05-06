@@ -1,36 +1,24 @@
-ENV_FILE ?= compose/base/.env.local
-COMPOSE_FILE ?= compose/local/docker-compose.yaml
-COMPOSE=docker compose --env-file $(ENV_FILE) -f $(COMPOSE_FILE)
+MODE ?= local
+ENV_FILE=compose/.env.${MODE}
+AIRFLOW_COMPOSE_FILE=compose/airflow/docker-compose.local.yaml
+MARQUEZ_COMPOSE_FILE=compose/marquez/docker-compose.yaml
 
-define insert_uid
-	@if ! grep -q '^AIRFLOW_UID=' $(ENV_FILE); then \
-		echo "AIRFLOW_UID=$$(id -u)" >> $(ENV_FILE); \
-		echo "Added AIRFLOW_UID=$$(id -u) to $(ENV_FILE)"; \
-	else \
-		echo "AIRFLOW_UID is already set in $(ENV_FILE)"; \
-	fi
-endef
+COMPOSE=docker compose --env-file $(ENV_FILE) -f $(AIRFLOW_COMPOSE_FILE) -f $(MARQUEZ_COMPOSE_FILE)
 
-prepare-env:
-	$(call insert_uid)
-
-up: prepare-env
+up:
 	$(COMPOSE) up -d
 
 down:
 	$(COMPOSE) down
 
+.PHONY: logs
 logs:
 	$(COMPOSE) logs -f
 
 ps:
 	$(COMPOSE) ps
 
-restart: prepare-env
-	$(COMPOSE) down
-	$(COMPOSE) up -d
-
-airflow-init: prepare-env
+airflow-init:
 	$(COMPOSE) up airflow-init
 
 shell:

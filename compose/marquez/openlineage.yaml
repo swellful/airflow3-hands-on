@@ -1,0 +1,8 @@
+transport:
+  type: http
+  url: http://marquez:5000
+  endpoint: /api/v1/lineage
+  timeout: 5
+  endpointParams: {}
+  headers: {}
+  retries: 3
