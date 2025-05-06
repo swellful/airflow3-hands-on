@@ -3,8 +3,10 @@ from airflow.providers.standard.operators.python import PythonOperator
 from datetime import datetime
 from assets import example_asset
 
+
 def produce_fn(**context):
     print("📦 Producing example_asset")
+
 
 with DAG(dag_id="dag_a", start_date=datetime(2024, 1, 1), schedule=None, catchup=False):
     PythonOperator(

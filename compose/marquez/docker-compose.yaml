@@ -1,0 +1,35 @@
+version: "3.7"
+services:
+  api:
+    image: "marquezproject/marquez:latest"
+    platform: linux/amd64
+    container_name: marquez-api
+    environment:
+      - MARQUEZ_CONFIG=/opt/marquez/marquez.yaml
+    ports:
+      - "${MARQUEZ_API_PORT:-15000}:${MARQUEZ_API_PORT:-15000}"
+      - "${MARQUEZ_API_ADMIN_PORT:-15001}:${MARQUEZ_API_ADMIN_PORT:-15001}"
+    volumes:
+      - data:/opt/marquez
+      - ../marquez/marquez.yaml:/opt/marquez/marquez.yaml:ro
+
+  web:
+    image: "marquezproject/marquez-web:latest"
+    container_name: marquez-web
+    platform: linux/amd64
+    environment:
+      - MARQUEZ_HOST=api
+      - MARQUEZ_PORT=${MARQUEZ_API_PORT:-15000}
+      - MARQUEZ_WEB_PORT=${MARQUEZ_WEB_PORT:-13000}
+      - REACT_APP_ADVANCED_SEARCH=true
+      - WEB_PORT=13000
+    ports:
+      - "${MARQUEZ_WEB_PORT:-13000}:${MARQUEZ_WEB_PORT:-13000}"
+    depends_on:
+      - api
+
+volumes:
+  data:
+
+# web과 api만 포함, postgres는 외부에서 띄움
+# https://github.com/MarquezProject/marquez/blob/main/docker/up.sh 참고
